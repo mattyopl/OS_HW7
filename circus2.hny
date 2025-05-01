@@ -15,6 +15,7 @@ def enter(c, color):
     acquire(?c->mutex)
 
     c->waiting[color] += 1
+    c->exitable[color] = c->entered[color] or (c->waiting[color] == 0)
 
     while c->entered[color] or c->exiting:
         wait(?c->can_enter[color], ?c->mutex)
@@ -28,7 +29,7 @@ def enter(c, color):
     # 1) circus is full
     # 2) for colors that entered[color] == False, waiting[color] == 0
 
-    c->exitable[color] = c->entered[color] or not c->waiting[color]
+    c->exitable[color] = c->entered[color] or (c->waiting[color] == 0)
 
     if (all(c->exitable)): #let clowns exit if there are no other clowns of other colors waiting, or the ring is full
         c->exiting = True
