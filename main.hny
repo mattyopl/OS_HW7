@@ -1,0 +1,21 @@
+from circus2 import Circus, enter, exit
+
+const N_GREEN = 2
+const N_BLUE = 2
+const N_YELLOW = 2
+
+colors = [ "green", "blue", "yellow" ]
+thecircus = Circus()
+
+def clown(color):
+    enter(?thecircus, color)
+    print(colors[color], "entered")
+    print(colors[color], "exiting")
+    exit(?thecircus, color)
+
+for _ in { 0 .. N_GREEN - 1 }:
+    spawn clown(0)
+for _ in { 0 .. N_BLUE - 1 }:
+    spawn clown(1)
+for _ in { 0 .. N_YELLOW - 1 }:
+    spawn clown(2)

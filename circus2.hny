@@ -1,0 +1,53 @@
+from synch import *
+
+def Circus() returns circus:
+    #circus.entered[i] is whether or not a clown of colors[i] has entered the circus
+    circus = {  .entered: [False,]*3,
+                .waiting: [0,]*3,
+                .exitable: [True,]*3,
+                .can_enter: [Condition(),]*3,
+                .exiting: False,
+                .can_exit: Condition(), 
+                .mutex: Lock()
+                }
+
+def enter(c, color):
+    acquire(?c->mutex)
+
+    c->waiting[color] += 1
+
+    while c->entered[color] or c->exiting:
+        wait(?c->can_enter[color], ?c->mutex)
+
+    # assume this clown can enter
+
+    c->entered[color] = True
+    c->waiting[color] -= 1
+
+    # let clowns exit if:
+    # 1) circus is full
+    # 2) for colors that entered[color] == False, waiting[color] == 0
+
+    c->exitable[color] = c->entered[color] or not c->waiting[color]
+
+    if (all(c->exitable)): #let clowns exit if there are no other clowns of other colors waiting, or the ring is full
+        c->exiting = True
+        notify_all(?c->can_exit)
+
+    release(?c->mutex)
+    
+def exit(c, color):
+    acquire(?c->mutex)
+
+    while not c->exiting:
+        wait(?c->can_exit, ?c->mutex)
+
+    c->entered[color] = False
+
+    if not any(c->entered):
+        for i in {0, 1, 2}:
+            if c->waiting[i] > 0:
+                notify(?c->can_enter[i])
+        c->exiting = False
+
+    release(?c->mutex)
