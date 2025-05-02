@@ -1,8 +1,8 @@
-from circus2 import Circus, enter, exit
+from circus1 import Circus, enter, exit
 
-const N_GREEN = 2
-const N_BLUE = 2
-const N_YELLOW = 2
+const N_GREEN = 1
+const N_BLUE = 1
+const N_YELLOW = 1
 
 colors = [ "green", "blue", "yellow" ]
 thecircus = Circus()
